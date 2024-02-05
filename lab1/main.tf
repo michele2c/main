@@ -1,11 +1,24 @@
+/*
+Name: IaC Buildout for Terraform Associate Exam
+Description: AWS Infrastructure Buildout
+*/
+
 # Configure the AWS Provider
 provider "aws" {
   region = "us-east-1"
 }
 
+# DATA BLOCK
 #Retrieve the list of AZs in the current AWS region
 data "aws_availability_zones" "available" {}
 data "aws_region" "current" {}
+
+# LOCALS BLOCK
+locals {
+  team        = "api_mgmt_dev"
+  application = "corp_api"
+  server_name = "ec2-${var.environment}-api-${var.variables_sub_az}"
+}
 
 #Define the VPC
 resource "aws_vpc" "vpc" {
@@ -15,6 +28,7 @@ resource "aws_vpc" "vpc" {
     Name        = var.vpc_name
     Environment = "demo_environment"
     Terraform   = "true"
+    Region      = data.aws_region.current.name # refer to a data block
   }
 }
 
@@ -139,6 +153,63 @@ resource "aws_instance" "web_server" {
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.public_subnets["public_subnet_1"].id
   tags = {
-    Name = "Ubuntu EC2 Server"
+    Name  = local.server_name # use local.LOCALVARIABLE to refer to a local variable
+    Owner = local.team # refer to the Local Block
+    App   = local.application
   }
 }
+
+# Add security group
+resource "aws_security_group" "my-new-security-group" {
+  name        = "web_server_inbound"
+  description = "Allow inbound traffic on tcp/443"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    description = "Allow 443 from the Internet"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name    = "web_server_inbound"
+    Purpose = "Intro to Resource Blocks Lab"
+  }
+}
+
+# Add provider
+resource "random_id" "randomness" {
+  byte_length = 16
+}
+
+# Add Amazon S3 bucket to use the random ID
+resource "aws_s3_bucket" "my-new-S3-bucket" {
+  bucket = "my-new-tf-test-bucket-${random_id.randomness.hex}"
+
+  tags = {
+    Name    = "My S3 Bucket"
+    Purpose = "Intro to Resource Blocks Lab"
+  }
+}
+# Lab Variables Block
+# Add new subnet and reference to variables file to make reusable
+resource "aws_subnet" "variables-subnet" {
+  vpc_id                  = aws_vpc.vpc.id
+  # cidr_block              = "10.0.250.0/24" # static values
+  cidr_block              = var.variables_sub_cidr # refer to a vaeriable using "var.VARIABLE_NAME"
+  # availability_zone       = "us-east-1a" # static value
+  availability_zone       = var.variables_sub_az # reasuble
+  # map_public_ip_on_launch = true
+  map_public_ip_on_launch = var.variables_sub_auto_ip
+
+  tags = {
+    # Name      = "sub-variables-us-east-1a"
+    # it will keep the prefix name and use the availabitiy zone variable to dynamically create the rest of the name
+    Name      = "sub-variables-${var.variables_sub_az}" # ${} calling the variable
+    Terraform = "true"
+  }
+}
+
+
