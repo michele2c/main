@@ -212,4 +212,8 @@ resource "aws_subnet" "variables-subnet" {
   }
 }
 
+# TERRAFORM IMPORT command
+# terraform import
+resource "aws_instance" "aws_linux" {
 
+}
