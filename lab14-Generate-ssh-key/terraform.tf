@@ -1,10 +1,8 @@
-# --- Install the Terraform AWS Provider ---#
 terraform {
   required_version = ">= 1.0.0"
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      version = "5.36.0"
     }
     http = {
       source  = "hashicorp/http"
@@ -12,7 +10,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.6.0"
+      version = "3.1.0"
     }
     local = {
       source  = "hashicorp/local"
@@ -24,7 +22,3 @@ terraform {
     }
   }
 }
-
-
-# change a version
-# terraform init -upgrade
