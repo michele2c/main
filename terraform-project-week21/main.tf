@@ -4,7 +4,7 @@ resource "aws_instance" "pipeline" {
   instance_type   = "t2.micro"
   key_name        = "tfproject"
   security_groups = [aws_security_group.jenkins_sg.id]
-
+  # user_data = 
   tags = {
     Name = "jenkins-instance"
   }
