@@ -7,7 +7,7 @@ resource "aws_instance" "jenkins_pipeline" {
   ami             = "ami-0c7217cdde317cfec" # Ubuntu 22.04
   instance_type   = "t2.micro"
   key_name        = "tfproject" # Key pair
-  user_data       = file("./install_jenkins_script.sh") # script path
+  user_data       = file("./install_jenkins_script.sh")
   security_groups = [aws_security_group.jenkins_sg.name]
 
   tags = {
@@ -56,14 +56,14 @@ resource "random_id" "bucket" {
 resource "aws_s3_bucket" "jenkins_artifacts_bucket" {
   bucket = "jenkins-artifacts-bucket-${random_id.bucket.hex}"
 }
-
+# Create a configuration for S3 bucket ownership controls
 resource "aws_s3_bucket_ownership_controls" "jenkins_artifacts_bucket" {
   bucket = aws_s3_bucket.jenkins_artifacts_bucket.id
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
 }
-
+# Create a configuration for managing the ACL and set to "private"
 resource "aws_s3_bucket_acl" "jenkins_artifacts_bucket" {
   depends_on = [aws_s3_bucket_ownership_controls.jenkins_artifacts_bucket]
 
