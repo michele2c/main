@@ -11,7 +11,7 @@ terraform {
     region = "us-east-1"
 
     # Encrypt with DynmoDB
-    dynamodb_table = "value"
+    dynamodb_table = "value" # table name
     encrypt = true
   }
 
