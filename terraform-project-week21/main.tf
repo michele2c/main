@@ -7,7 +7,7 @@ resource "aws_instance" "jenkins_pipeline" {
   ami             = "ami-0c7217cdde317cfec" # Ubuntu 22.04
   instance_type   = "t2.micro"
   key_name        = "tfproject" # Key pair
-  user_data       = file("./install_jenkins_script.sh")
+  user_data       = file("./install_jenkins_script.sh") # built-in function -> file()
   security_groups = [aws_security_group.jenkins_sg.name]
 
   tags = {
